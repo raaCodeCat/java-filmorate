@@ -74,7 +74,7 @@ public class UserController {
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
 
-        for(Integer key : users.keySet()) {
+        for (Integer key : users.keySet()) {
             userList.add(users.get(key));
         }
 
