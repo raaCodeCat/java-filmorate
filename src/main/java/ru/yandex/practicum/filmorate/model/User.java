@@ -1,19 +1,21 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+
 import java.time.LocalDate;
 
 /**
- * Film.
+ * User
  */
 @Data
 @ToString
-public class Film {
+@Builder
+public class User {
     private Integer id;
-
+    private String email;
+    private String login;
     private String name;
-    private String description;
-    private LocalDate releaseDate;
-    private Integer duration;
+    private LocalDate birthday;
 }
