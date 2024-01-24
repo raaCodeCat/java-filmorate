@@ -74,7 +74,7 @@ public class FilmController {
     public List<Film> getAllFilms() {
         List<Film> filmList = new ArrayList<>();
 
-        for(Integer key : films.keySet()) {
+        for (Integer key : films.keySet()) {
             filmList.add(films.get(key));
         }
 
