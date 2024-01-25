@@ -57,60 +57,6 @@ class FilmControllerTest {
     }
 
     @Test
-    @DisplayName("Добавления фильма, параметр name со значением \"\"")
-    void addFilm_fail_BlankName() {
-        film.setName("");
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> filmController.addFilm(film)
-        );
-
-        final List<Film> films = filmController.getAllFilms();
-
-        assertNotNull(films);
-        assertEquals(0, films.size());
-        assertEquals("400 BAD_REQUEST \"Параметр name не должен быть пустым\"", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Добавления фильма, параметр name со значением null")
-    void addFilm_fail_NullName() {
-        film.setName(null);
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> filmController.addFilm(film)
-        );
-
-        final List<Film> films = filmController.getAllFilms();
-
-        assertNotNull(films);
-        assertEquals(0, films.size());
-        assertEquals("400 BAD_REQUEST \"Параметр name не должен быть пустым\"", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Добавления фильма, описания (description) более 200 символов")
-    void addFilm_fail_descriptionMore200Characters() {
-        film.setDescription("Very very very very very very very very very very very very very very very very very " +
-                "very very very very very very very very very very very very very very very very very very very very " +
-                "very very very very very long description");
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> filmController.addFilm(film)
-        );
-
-        final List<Film> films = filmController.getAllFilms();
-
-        assertNotNull(films);
-        assertEquals(0, films.size());
-        assertEquals("400 BAD_REQUEST \"Максимальная длинна параметра description должна быть 200 символов\"",
-                exception.getMessage());
-    }
-
-    @Test
     @DisplayName("Добавления фильма, дата релиза (releaseDate) 28 декабря 1895 года")
     void addFilm_releaseDateEquals28December1895() {
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
@@ -139,42 +85,6 @@ class FilmControllerTest {
         assertNotNull(films);
         assertEquals(0, films.size());
         assertEquals("400 BAD_REQUEST \"Параметр releaseDate не должна быть меньше 28 декабря 1895 года\"",
-                exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Добавления фильма, продолжительность (duration) равна 0")
-    void addFilm_fail_durationZero() {
-        film.setDuration(0);
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> filmController.addFilm(film)
-        );
-
-        final List<Film> films = filmController.getAllFilms();
-
-        assertNotNull(films);
-        assertEquals(0, films.size());
-        assertEquals("400 BAD_REQUEST \"Параметр duration должен быть положительным\"",
-                exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Добавления фильма, продолжительность (duration) отрицательное значение")
-    void addFilm_fail_durationNegative() {
-        film.setDuration(-1);
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> filmController.addFilm(film)
-        );
-
-        final List<Film> films = filmController.getAllFilms();
-
-        assertNotNull(films);
-        assertEquals(0, films.size());
-        assertEquals("400 BAD_REQUEST \"Параметр duration должен быть положительным\"",
                 exception.getMessage());
     }
 

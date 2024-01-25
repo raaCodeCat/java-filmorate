@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
-
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 
 /**
@@ -21,11 +24,16 @@ public class User {
     /**
      * Электронная почта.
      */
+    @NotNull(message = "Параметр email не может быть null.")
+    @NotBlank(message = "Параметр email не может быть пустым.")
+    @Email(message = "Неправильный формат email адреса.")
     private String email;
 
     /**
      * Логин пользователя.
      */
+    @NotNull(message = "Параметр login не может быть null.")
+    @NotBlank(message = "Параметр login не может быть пустым.")
     private String login;
 
     /**
@@ -36,5 +44,6 @@ public class User {
     /**
      * Дата рождения.
      */
+    @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     private LocalDate birthday;
 }

@@ -3,6 +3,10 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Min;
 import java.time.LocalDate;
 
 /**
@@ -20,11 +24,14 @@ public class Film {
     /**
      * Название фильма.
      */
+    @NotNull(message = "Параметр name не может быть null.")
+    @NotBlank(message = "Параметр name не может быть пустым.")
     private String name;
 
     /**
      * Описание фильма.
      */
+    @Length(max = 200, message = "Максимальная длина описания — 200 символов.")
     private String description;
 
     /**
@@ -35,5 +42,6 @@ public class Film {
     /**
      * Продолжительность фильма
      */
+    @Min(value = 1, message = "Продолжительность фильма должна быть положительной.")
     private Integer duration;
 }

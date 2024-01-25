@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -90,28 +92,7 @@ public class FilmController {
     }
 
     private void validateFilmFields(Film film) {
-        String name = film.getName();
-        String description = film.getDescription();
-        Integer duration = film.getDuration();
         LocalDate releaseDate = film.getReleaseDate();
-
-        if (name == null || "".equals(name)) {
-            log.debug("Не пройдена валидация name: {}", name);
-
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Параметр name не должен быть пустым");
-        }
-
-        if (description != null && description.length() > 200) {
-            log.debug("Не пройдена валидация description: {}", description);
-
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Максимальная длинна параметра description должна быть 200 символов");
-        }
-
-        if (duration != null && duration < 1) {
-            log.debug("Не пройдена валидация duration: {}", duration);
-
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Параметр duration должен быть положительным");
-        }
 
         if (releaseDate != null && releaseDate.isBefore(LocalDate.of(1895, 12, 28))) {
             log.debug("Не пройдена валидация releaseDate: {}", releaseDate);
@@ -119,5 +100,19 @@ public class FilmController {
             throw new ValidationException(HttpStatus.BAD_REQUEST,
                     "Параметр releaseDate не должна быть меньше 28 декабря 1895 года");
         }
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException exception) {
+        Map<String, String> errors = new HashMap<>();
+
+        exception.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        return errors;
     }
 }

@@ -2,10 +2,13 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import java.time.LocalDate;
+
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,11 +28,9 @@ public class UserController {
      * Создание пользователя
      */
     @PostMapping
-    public User addUser(@RequestBody User user) {
+    public User addUser(@RequestBody @Valid User user) {
         log.debug("Получен запрос POST /users.");
         log.debug("Попытка добавить пользователя {}.", user);
-
-        validateUserFields(user);
 
         Integer id = userIdCounter++;
 
@@ -48,12 +49,11 @@ public class UserController {
      * Обновление пользователя
      */
     @PutMapping
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@RequestBody @Valid User user) {
         log.debug("Получен запрос PUT /users.");
         log.debug("Попытка обновить пользователя {}.", user);
 
         checkUserExistsById(user);
-        validateUserFields(user);
 
         User userReplaced = replaceVoidNameByLogin(user);
         Integer id = userReplaced.getId();
@@ -90,33 +90,6 @@ public class UserController {
         }
     }
 
-    private void validateUserFields(User user) {
-        String email = user.getEmail();
-        String login = user.getLogin();
-        LocalDate birthday = user.getBirthday();
-
-        if (email == null || email.isBlank() || !email.contains("@")) {
-            log.debug("Не пройдена валидация email: {}", email);
-
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Параметр email не должен быть пустым и должен содержать символ @");
-        }
-
-        if (login == null || login.isBlank() || !login.replaceAll("\\s", "").equals(login)) {
-            log.debug("Не пройдена валидация login: {}", login);
-
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Параметр login не должен быть пустым и содержать пробелы");
-        }
-
-        if (birthday != null && birthday.isAfter(LocalDate.now())) {
-            log.debug("Не пройдена валидация birthday: {}", birthday);
-
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Параметр birthday не должен быть в будущем");
-        }
-    }
-
     private User replaceVoidNameByLogin(User user) {
         String name = user.getName();
         String newName;
@@ -136,5 +109,19 @@ public class UserController {
                 .birthday(user.getBirthday())
                 .id(user.getId())
                 .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException exception) {
+        Map<String, String> errors = new HashMap<>();
+
+        exception.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        return errors;
     }
 }
