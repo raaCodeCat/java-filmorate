@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Min;
 import java.time.LocalDate;
 
@@ -24,7 +23,6 @@ public class Film {
     /**
      * Название фильма.
      */
-    @NotNull(message = "Параметр name не может быть null.")
     @NotBlank(message = "Параметр name не может быть пустым.")
     private String name;
 

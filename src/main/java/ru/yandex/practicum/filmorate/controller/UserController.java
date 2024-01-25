@@ -72,13 +72,7 @@ public class UserController {
      */
     @GetMapping
     public List<User> getAllUsers() {
-        List<User> userList = new ArrayList<>();
-
-        for (Integer key : users.keySet()) {
-            userList.add(users.get(key));
-        }
-
-        return List.copyOf(userList);
+        return new ArrayList<>(users.values());
     }
 
     private void checkUserExistsById(User user) {

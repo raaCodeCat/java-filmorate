@@ -73,13 +73,7 @@ public class FilmController {
      */
     @GetMapping
     public List<Film> getAllFilms() {
-        List<Film> filmList = new ArrayList<>();
-
-        for (Integer key : films.keySet()) {
-            filmList.add(films.get(key));
-        }
-
-        return List.copyOf(filmList);
+        return new ArrayList<>(films.values());
     }
 
     private void checkFilmExistsById(Film film) {
