@@ -49,7 +49,7 @@ public class FilmController {
      */
     @PutMapping
     public Film updateFilm(@RequestBody @Valid Film film) {
-        log.debug("Получен запрос POST /films.");
+        log.debug("Получен запрос PUT /films.");
         log.debug("Попытка обновить фильм {}.", film);
 
         validateFilmFields(film);
@@ -85,7 +85,7 @@ public class FilmController {
         if (!films.containsKey(id)) {
             log.debug("Не найден фильм для обновления с id = {}", id);
 
-            throw new ValidationException(HttpStatus.NOT_FOUND, "Фильм с id = " + id + "не найден");
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Фильм с id = " + id + " не найден");
         }
     }
 

@@ -31,12 +31,12 @@ public class UserController {
 
         validateUserFields(user);
 
-        User userReplaced = replaceVoidNameByLogin(user);
         Integer id = userIdCounter++;
 
-        log.debug("Пользователю {} назначен id = {}.", userReplaced, id);
+        log.debug("Пользователю {} назначен id = {}.", user, id);
 
-        userReplaced.setId(id);
+        user.setId(id);
+        User userReplaced = replaceVoidNameByLogin(user);
         users.put(id, userReplaced);
 
         log.debug("Пользователь {} добавлен.", userReplaced);
@@ -86,7 +86,7 @@ public class UserController {
         if (!users.containsKey(id)) {
             log.debug("Не найден пользователь для обновления с id = {}", id);
 
-            throw new ValidationException(HttpStatus.NOT_FOUND, "Пользователь с id = " + id + "не найден");
+            throw new ValidationException(HttpStatus.NOT_FOUND, "Пользователь с id = " + id + " не найден");
         }
     }
 

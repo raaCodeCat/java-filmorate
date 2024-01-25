@@ -13,9 +13,28 @@ import java.time.LocalDate;
 @ToString
 @Builder
 public class User {
+    /**
+     * Целочисленный идентификатор пользователя.
+     */
     private Integer id;
+
+    /**
+     * Электронная почта.
+     */
     private String email;
+
+    /**
+     * Логин пользователя.
+     */
     private String login;
+
+    /**
+     * Имя для отображения.
+     */
     private String name;
+
+    /**
+     * Дата рождения.
+     */
     private LocalDate birthday;
 }
