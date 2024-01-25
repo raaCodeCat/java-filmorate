@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,8 +113,7 @@ public class FilmController {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Параметр duration должен быть положительным");
         }
 
-        if (releaseDate != null && releaseDate.isBefore(LocalDate.parse("28.12.1895",
-                DateTimeFormatter.ofPattern("dd.MM.yyyy")))) {
+        if (releaseDate != null && releaseDate.isBefore(LocalDate.of(1895, 12, 28))) {
             log.debug("Не пройдена валидация releaseDate: {}", releaseDate);
 
             throw new ValidationException(HttpStatus.BAD_REQUEST,
