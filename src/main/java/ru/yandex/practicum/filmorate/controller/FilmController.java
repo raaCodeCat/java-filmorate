@@ -107,7 +107,7 @@ public class FilmController {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Максимальная длинна параметра description должна быть 200 символов");
         }
 
-        if (duration != null && duration < 0) {
+        if (duration != null && duration < 1) {
             log.debug("Не пройдена валидация duration: {}", duration);
 
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Параметр duration должен быть положительным");
