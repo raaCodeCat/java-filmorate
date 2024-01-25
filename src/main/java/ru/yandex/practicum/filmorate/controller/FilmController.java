@@ -28,7 +28,7 @@ public class FilmController {
      */
     @PostMapping
     public Film addFilm(@RequestBody @Valid Film film) {
-        log.debug("Получен запрос POST /users.");
+        log.debug("Получен запрос POST /films.");
         log.debug("Попытка добавить фильм {}.", film);
 
         validateFilmFields(film);
@@ -50,7 +50,7 @@ public class FilmController {
      */
     @PutMapping
     public Film updateFilm(@RequestBody @Valid Film film) {
-        log.debug("Получен запрос POST /users.");
+        log.debug("Получен запрос POST /films.");
         log.debug("Попытка обновить фильм {}.", film);
 
         validateFilmFields(film);
