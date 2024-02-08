@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Min;
 import java.time.LocalDate;
@@ -38,8 +39,20 @@ public class Film {
     private LocalDate releaseDate;
 
     /**
-     * Продолжительность фильма
+     * Продолжительность фильма.
      */
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной.")
     private Integer duration;
+
+    /**
+     * Дата релиза фильма не должна быть меньше 28 декабря 1895 года.
+     */
+    @AssertTrue(message = "Параметр releaseDate не должен быть меньше 28 декабря 1895 года")
+    private boolean isDateAfterOrEquals28Dec1985() {
+        if (releaseDate != null) {
+            return !releaseDate.isBefore(LocalDate.of(1895, 12, 28));
+        }
+
+        return true;
+    }
 }

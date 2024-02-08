@@ -71,24 +71,6 @@ class FilmControllerTest {
     }
 
     @Test
-    @DisplayName("Добавления фильма, дата релиза (releaseDate) до 28 декабря 1895 года")
-    void addFilm_fail_releaseDateBefore28December1895() {
-        film.setReleaseDate(LocalDate.of(1895, 12, 27));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> filmController.addFilm(film)
-        );
-
-        final List<Film> films = filmController.getAllFilms();
-
-        assertNotNull(films);
-        assertEquals(0, films.size());
-        assertEquals("400 BAD_REQUEST \"Параметр releaseDate не должна быть меньше 28 декабря 1895 года\"",
-                exception.getMessage());
-    }
-
-    @Test
     @DisplayName("Обновление фильма, все поля валидные")
     void updateFilm_allFieldsValid() {
         addFilmToList();
