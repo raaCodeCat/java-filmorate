@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
@@ -41,4 +42,16 @@ public class User {
      */
     @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     private LocalDate birthday;
+
+    /**
+     * Параметр login не должен содержать пробелы.
+     */
+    @AssertTrue(message = "Параметр login не должен содержать пробелы")
+    private boolean isLoginWithOutWhitespace() {
+        if (login != null) {
+            return login.replaceAll("\\s", "").equals(login);
+        }
+
+        return true;
+    }
 }
