@@ -1,17 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Контроллер для {@link Film}
@@ -19,9 +16,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private Integer filmIdCounter = 1;
+    private final FilmService filmService;
 
     /**
      * Добавление фильма.
@@ -30,16 +27,7 @@ public class FilmController {
     public Film addFilm(@RequestBody @Valid Film film) {
         log.debug("Получен запрос POST /films.");
 
-        Integer id = filmIdCounter++;
-
-        log.debug("Фильму {} назначен id = {}.", film, id);
-
-        film.setId(id);
-        films.put(id, film);
-
-        log.debug("Добавлен {} добавлен.", film);
-
-        return film;
+        return filmService.create(film);
     }
 
     /**
@@ -48,19 +36,24 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@RequestBody @Valid Film film) {
         log.debug("Получен запрос PUT /films.");
-        log.debug("Попытка обновить фильм {}.", film);
 
-        checkFilmExistsById(film);
+        return filmService.update(film);
+    }
 
-        Integer id = film.getId();
+    /**
+     * Добавление лайка фильму.
+     */
+    @PutMapping("/{id}/like/{userId}")
+    public Map<String, Integer> addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        return Map.of("likeCount", filmService.addLike(id, userId));
+    }
 
-        if (films.containsKey(id)) {
-            films.replace(id, film);
-        }
-
-        log.debug("Фильм {} обновлен.", film);
-
-        return films.get(id);
+    /**
+     * Удаление лайка у фильма.
+     */
+    @DeleteMapping("/{id}/like/{userId}")
+    public Map<String, Integer> deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        return Map.of("likeCount", filmService.deleteLike(id, userId));
     }
 
     /**
@@ -68,29 +61,23 @@ public class FilmController {
      */
     @GetMapping
     public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
+        return filmService.get();
     }
 
-    private void checkFilmExistsById(Film film) {
-        Integer id = film.getId();
-        if (!films.containsKey(id)) {
-            log.debug("Не найден фильм для обновления с id = {}", id);
-
-            throw new ValidationException(HttpStatus.NOT_FOUND, "Фильм с id = " + id + " не найден");
-        }
+    /**
+     * Получение фильма по идентификатору (id).
+     */
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Integer id) {
+        return filmService.getById(id);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException exception) {
-        Map<String, String> errors = new HashMap<>();
-
-        exception.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return errors;
+    /**
+     * Возвращает список из первых count фильмов по количеству лайков.
+     * Если значение параметра count не задано, верните первые 10.
+     */
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam Optional<Integer> count) {
+        return filmService.getPopularFilms(count.orElse(10));
     }
 }

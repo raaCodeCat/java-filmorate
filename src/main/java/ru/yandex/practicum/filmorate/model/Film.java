@@ -7,6 +7,7 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Min;
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * Film.
@@ -35,6 +36,11 @@ public class Film {
      * Дата релиза.
      */
     private LocalDate releaseDate;
+
+    /**
+     * Пользователи поставившие лайк.
+     */
+    private Set<Integer> likedUsers;
 
     /**
      * Продолжительность фильма.
