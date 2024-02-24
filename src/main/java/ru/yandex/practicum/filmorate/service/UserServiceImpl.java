@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    private void checkExistsUserById (Integer id) {
+    private void checkExistsUserById(Integer id) {
         Optional<User> userOptional = userStorage.getById(id);
 
         if (userOptional.isEmpty()) {
