@@ -80,7 +80,7 @@ public class FilmServiceImpl implements FilmService {
         return filmStorage.getPopularFilms(count);
     }
 
-    private void checkExistsFilmById (Integer id) {
+    private void checkExistsFilmById(Integer id) {
         Optional<Film> filmOptional = filmStorage.getById(id);
 
         if (filmOptional.isEmpty()) {
@@ -90,7 +90,7 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-    private void checkExistsUserById (Integer id) {
+    private void checkExistsUserById(Integer id) {
         userService.getById(id);
     }
 }
