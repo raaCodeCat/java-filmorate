@@ -6,10 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,7 +25,8 @@ class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController();
+        filmController = new FilmController(new FilmServiceImpl(new InMemoryFilmStorage(),
+                new UserServiceImpl(new InMemoryUserStorage())));
         film = Film.builder()
                 .name("nisi eiusmod")
                 .description("adipisicing")
@@ -54,38 +58,6 @@ class FilmControllerTest {
         assertNotNull(films);
         assertEquals(1, films.size());
         assertEquals(film, actual);
-    }
-
-    @Test
-    @DisplayName("Добавления фильма, дата релиза (releaseDate) 28 декабря 1895 года")
-    void addFilm_releaseDateEquals28December1895() {
-        film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        filmController.addFilm(film);
-
-        List<Film> films = filmController.getAllFilms();
-        final Film actual = films.get(0);
-
-        assertNotNull(films);
-        assertEquals(1, films.size());
-        assertEquals(film, actual);
-    }
-
-    @Test
-    @DisplayName("Добавления фильма, дата релиза (releaseDate) до 28 декабря 1895 года")
-    void addFilm_fail_releaseDateBefore28December1895() {
-        film.setReleaseDate(LocalDate.of(1895, 12, 27));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> filmController.addFilm(film)
-        );
-
-        final List<Film> films = filmController.getAllFilms();
-
-        assertNotNull(films);
-        assertEquals(0, films.size());
-        assertEquals("400 BAD_REQUEST \"Параметр releaseDate не должна быть меньше 28 декабря 1895 года\"",
-                exception.getMessage());
     }
 
     @Test

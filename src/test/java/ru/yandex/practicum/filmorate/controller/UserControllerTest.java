@@ -5,8 +5,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,12 +23,14 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
+        userController = new UserController(new UserServiceImpl(new InMemoryUserStorage()));
         user = User.builder()
+                .id(1)
                 .login("dolore")
                 .name("Nick Name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946,8,20))
+                .friends(new HashSet<>())
                 .build();
 
         userToUpdate = User.builder()
@@ -34,6 +39,7 @@ class UserControllerTest {
                 .name("est adipisicing")
                 .email("mail@yandex.ru")
                 .birthday(LocalDate.of(1976,9,20))
+                .friends(new HashSet<>())
                 .build();
     }
 
