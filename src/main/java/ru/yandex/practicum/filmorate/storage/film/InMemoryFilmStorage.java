@@ -16,9 +16,6 @@ import static java.util.Comparator.reverseOrder;
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
 
-    private final Set<Film> filmsByPopularity = new TreeSet<>(comparing((Film film) -> film.getLikedUsers().size(),
-            reverseOrder()).thenComparing(Film::getId));
-
     private Integer filmIdCounter = 1;
 
     @Override
@@ -46,7 +43,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
         film.setId(id);
         films.put(id, film);
-        filmsByPopularity.add(film);
 
         return films.get(id);
     }
@@ -57,9 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             film.setLikedUsers(new HashSet<>());
         }
 
-        filmsByPopularity.remove(films.get(id));
         films.replace(id, film);
-        filmsByPopularity.add(film);
 
         return films.get(id);
     }
@@ -67,10 +61,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Integer addLike(Integer id, Integer userId) {
         Film film = films.get(id);
-        filmsByPopularity.remove(film);
         Set<Integer> likes = film.getLikedUsers();
         likes.add(userId);
-        filmsByPopularity.add(film);
 
         return likes.size();
     }
@@ -78,16 +70,18 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Integer deleteLike(Integer id, Integer userId) {
         Film film = films.get(id);
-        filmsByPopularity.remove(film);
         Set<Integer> likes = film.getLikedUsers();
         likes.remove(userId);
-        filmsByPopularity.add(film);
 
         return likes.size();
     }
 
     @Override
     public List<Film> getPopularFilms(Integer count) {
-        return filmsByPopularity.stream().limit(count).collect(Collectors.toList());
+        return films.values().stream()
+                .sorted(comparing((Film film) -> film.getLikedUsers().size(),
+                        reverseOrder()).thenComparing(Film::getId))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }
