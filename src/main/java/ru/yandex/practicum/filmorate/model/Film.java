@@ -1,18 +1,27 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Min;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Film.
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Builder
 public class Film {
     /**
@@ -38,15 +47,25 @@ public class Film {
     private LocalDate releaseDate;
 
     /**
-     * Пользователи поставившие лайк.
-     */
-    private Set<Integer> likedUsers;
-
-    /**
      * Продолжительность фильма.
      */
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной.")
     private Integer duration;
+
+    /**
+     * Рейтинг.
+     */
+    private MpaRating mpa;
+
+    /**
+     * Список жанров.
+     */
+    private List<Genre> genres;
+
+    /**
+     * Пользователи поставившие лайк.
+     */
+    private Set<Integer> likedUsers;
 
     /**
      * Дата релиза фильма не должна быть меньше 28 декабря 1895 года.

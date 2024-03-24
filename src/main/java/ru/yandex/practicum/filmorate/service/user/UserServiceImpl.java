@@ -1,7 +1,8 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -17,6 +18,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
 
     @Override
@@ -66,9 +68,8 @@ public class UserServiceImpl implements UserService {
         checkExistsUserById(friendId);
 
         userStorage.addToFriends(id, friendId);
-        userStorage.addToFriends(friendId, id);
 
-        return "Пользователи с id " + id + " и " + friendId + " теперь друзья.";
+        return "Пользователь с id " + id + " добавил в друзья пользователя с id " + friendId + ".";
     }
 
     @Override
@@ -77,9 +78,8 @@ public class UserServiceImpl implements UserService {
         checkExistsUserById(friendId);
 
         userStorage.deleteFromFriends(id, friendId);
-        userStorage.deleteFromFriends(friendId, id);
 
-        return "Пользователи с id " + id + " и " + friendId + " теперь не друзья.";
+        return "Пользователь с id " + id + " удалил из друзей пользователя с id " + friendId + ".";
     }
 
     @Override

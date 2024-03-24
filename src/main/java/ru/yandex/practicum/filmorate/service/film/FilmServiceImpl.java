@@ -1,12 +1,14 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
+    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
 
     private final UserService userService;
@@ -41,7 +44,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film create(Film film) {
         Film filmNew = filmStorage.create(film);
-        log.debug("Добавлен {} добавлен.", film);
+        log.debug("Добавлен фильм {}.", film);
 
         return filmNew;
     }

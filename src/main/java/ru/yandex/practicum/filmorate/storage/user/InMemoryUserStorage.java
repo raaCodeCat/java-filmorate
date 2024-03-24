@@ -14,7 +14,7 @@ import java.util.HashSet;
 /**
  * Хранилище в памяти для {@link User}.
  */
-@Component
+@Component("inMemoryUserStorage")
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
@@ -65,12 +65,18 @@ public class InMemoryUserStorage implements UserStorage {
     public void addToFriends(Integer id, Integer friendId) {
         Set<Integer> friends = users.get(id).getFriends();
         friends.add(friendId);
+
+        friends = users.get(friendId).getFriends();
+        friends.add(id);
     }
 
     @Override
     public void deleteFromFriends(Integer id, Integer friendId) {
         Set<Integer> friends = users.get(id).getFriends();
         friends.remove(friendId);
+
+        friends = users.get(friendId).getFriends();
+        friends.remove(id);
     }
 
     @Override
