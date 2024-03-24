@@ -23,7 +23,7 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
         String sql = "insert into filmgenre (film_id, genre_id)" +
                 " values (?, ?)";
 
-        for(Genre genre : genres) {
+        for (Genre genre : genres) {
             params = new Object[]{
                     filmId, genre.getId()
             };
