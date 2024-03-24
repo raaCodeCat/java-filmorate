@@ -42,6 +42,7 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
 
         return jdbcTemplate.query(sql, new UserMapper(), params);
     }
+
     public Integer getLikesCountByFilmId(Integer id) {
         Object[] params = new Object[]{id};
         String sql = "select count(distinct user_id) as likeCount from filmlike where film_id = ?";
@@ -55,7 +56,7 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
         Set<Integer> likedUsersId = new HashSet<>();
         List<User> users = getLikedUsersByFilmId(id);
 
-        for(User user : users) {
+        for (User user : users) {
             likedUsersId.add(user.getId());
         }
 
