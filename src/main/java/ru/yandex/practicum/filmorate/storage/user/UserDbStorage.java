@@ -2,15 +2,12 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.friendship.FriendshipStorage;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.List;
@@ -24,9 +21,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    @Qualifier("friendshipDbStorage")
-    private final FriendshipStorage friendshipStorage;
 
     @Override
     public List<User> get() {
@@ -49,7 +43,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User create(User user) {
+    public Integer create(User user) {
         Object[] params = new Object[]{
                 user.getEmail(),
                 user.getLogin(),
@@ -73,13 +67,11 @@ public class UserDbStorage implements UserStorage {
             return ps;
         }, keyHolder);
 
-        Integer userId = (Integer) (keyHolder.getKey());
-
-        return getById(userId).orElse(null);
+        return (Integer) (keyHolder.getKey());
     }
 
     @Override
-    public User update(Integer id, User user) {
+    public void update(Integer id, User user) {
         Object[] params = new Object[]{
                 user.getEmail(),
                 user.getLogin(),
@@ -97,33 +89,6 @@ public class UserDbStorage implements UserStorage {
 
         log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
 
-        jdbcTemplate.update(
-                sql,
-                params
-        );
-
-        return getById(id).orElse(null);
-    }
-
-    @Override
-    @Transactional
-    public void addToFriends(Integer id, Integer friendId) {
-        friendshipStorage.createFriendship(id, friendId);
-    }
-
-    @Override
-    @Transactional
-    public void deleteFromFriends(Integer id, Integer friendId) {
-        friendshipStorage.deleteFriendship(id, friendId);
-    }
-
-    @Override
-    public List<User> getUserFriends(Integer id) {
-        return friendshipStorage.getFriendsByUserId(id);
-    }
-
-    @Override
-    public List<User> getMutualFriends(Integer id, Integer otherId) {
-        return friendshipStorage.getMutualFriends(id, otherId);
+        jdbcTemplate.update(sql, params);
     }
 }

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,10 +23,7 @@ class UserDbStorageTest {
 
     @BeforeEach
     void setUp() {
-        userDbStorage = new UserDbStorage(
-                jdbcTemplate,
-                new FriendshipDbStorage(jdbcTemplate)
-        );
+        userDbStorage = new UserDbStorage(jdbcTemplate);
         newUser1 = User.builder()
                 .login("dolore")
                 .name("Nick Name")
@@ -44,105 +40,61 @@ class UserDbStorageTest {
 
     @Test
     void get() {
-        User user1 = userDbStorage.create(newUser1);
-        Integer userId1 = user1.getId();
-        user1.setId(userId1);
-        User user2 = userDbStorage.create(newUser2);
-        Integer userId2 = user2.getId();
-        user2.setId(userId2);
+        Integer userId1 = userDbStorage.create(newUser1);
+        Integer userId2 = userDbStorage.create(newUser2);
+        Optional<User> user1 = userDbStorage.getById(userId1);
+        Optional<User> user2 = userDbStorage.getById(userId2);
 
         List<User> users = userDbStorage.get();
 
         assertNotNull(users);
         assertEquals(2, users.size());
-        assertEquals(user1, users.get(0));
-        assertEquals(user2, users.get(1));
+        assertTrue(user1.isPresent());
+        assertEquals(user1.get(), users.get(0));
+        assertTrue(user2.isPresent());
+        assertEquals(user2.get(), users.get(1));
     }
 
     @Test
     void getById() {
-        User user1 = userDbStorage.create(newUser1);
-        Integer userId1 = user1.getId();
-        user1.setId(userId1);
+        Integer userId1 = userDbStorage.create(newUser1);
 
         Optional<User> user = userDbStorage.getById(userId1);
 
         assertTrue(user.isPresent());
-        assertEquals(user1, user.get());
+        assertEquals(userId1, user.get().getId());
+        assertEquals(newUser1.getLogin(), user.get().getLogin());
+        assertEquals(newUser1.getName(), user.get().getName());
+        assertEquals(newUser1.getBirthday(), user.get().getBirthday());
+        assertEquals(newUser1.getEmail(), user.get().getEmail());
     }
 
     @Test
     void create() {
-        User user1 = userDbStorage.create(newUser1);
-        Integer userId1 = user1.getId();
-        user1.setId(userId1);
+        Integer userId1 = userDbStorage.create(newUser1);
 
         Optional<User> user = userDbStorage.getById(userId1);
 
         assertTrue(user.isPresent());
-        assertEquals(user1, user.get());
+        assertEquals(userId1, user.get().getId());
+        assertEquals(newUser1.getLogin(), user.get().getLogin());
+        assertEquals(newUser1.getName(), user.get().getName());
+        assertEquals(newUser1.getBirthday(), user.get().getBirthday());
+        assertEquals(newUser1.getEmail(), user.get().getEmail());
     }
 
     @Test
     void update() {
-        User user1 = userDbStorage.create(newUser1);
-        Integer userId1 = user1.getId();
-        user1.setId(userId1);
-        user1.setName("udpateName");
-        user1.setLogin("updateLogin");
-        user1.setEmail("update@mail.ru");
+        Integer userId1 = userDbStorage.create(newUser1);
+        newUser1.setId(userId1);
+        newUser1.setName("udpateName");
+        newUser1.setLogin("updateLogin");
+        newUser1.setEmail("update@mail.ru");
 
-        userDbStorage.update(userId1, user1);
+        userDbStorage.update(userId1, newUser1);
         Optional<User> user = userDbStorage.getById(userId1);
 
         assertTrue(user.isPresent());
-        assertEquals(user1, user.get());
-    }
-
-    @Test
-    void getUserFriends() {
-        FriendshipDbStorage friendshipDbStorage = new FriendshipDbStorage(jdbcTemplate);
-        User user1 = userDbStorage.create(newUser1);
-        Integer userId1 = user1.getId();
-        user1.setId(userId1);
-        User user2 = userDbStorage.create(newUser2);
-        Integer userId2 = user2.getId();
-        user2.setId(userId2);
-        friendshipDbStorage.createFriendship(userId1, userId2);
-
-        List<User> users = userDbStorage.getUserFriends(userId1);
-
-        assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals(user2, users.get(0));
-    }
-
-    @Test
-    void getMutualFriends() {
-        FriendshipDbStorage friendshipDbStorage = new FriendshipDbStorage(jdbcTemplate);
-        User user1 = userDbStorage.create(newUser1);
-        Integer userId1 = user1.getId();
-        user1.setId(userId1);
-        User user2 = userDbStorage.create(newUser2);
-        Integer userId2 = user2.getId();
-        user2.setId(userId2);
-        User newUser3 = User.builder()
-                .login("third")
-                .name("thirdName")
-                .email("third@mail.ru")
-                .birthday(LocalDate.of(2003, 3, 13))
-                .build();
-        User user3 = userDbStorage.create(newUser3);
-        Integer userId3 = user3.getId();
-        user3.setId(userId3);
-        friendshipDbStorage.createFriendship(userId1, userId2);
-        friendshipDbStorage.createFriendship(userId1, userId3);
-        friendshipDbStorage.createFriendship(userId2, userId3);
-
-        List<User> users = friendshipDbStorage.getMutualFriends(userId1, userId2);
-
-        assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals(user3, users.get(0));
+        assertEquals(newUser1, user.get());
     }
 }
