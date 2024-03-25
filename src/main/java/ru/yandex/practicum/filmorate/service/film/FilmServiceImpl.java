@@ -2,14 +2,16 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.filmgenre.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.filmlike.FilmLikeStorage;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,8 +22,11 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
-    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
+
+    private final FilmGenreStorage filmGenreStorage;
+
+    private final FilmLikeStorage filmLikeStorage;
 
     private final UserService userService;
 
@@ -42,24 +47,39 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    @Transactional
     public Film create(Film film) {
-        Film filmNew = filmStorage.create(film);
-        log.debug("Добавлен фильм {}.", film);
+        log.debug("Добавляем фильм {}.", film);
+        Integer filmId = filmStorage.create(film);
 
-        return filmNew;
+        List<Genre> genres = film.getGenres();
+        if (genres != null && genres.size() > 0) {
+            log.debug("Добавляем жанры фильма {}.", film);
+            filmGenreStorage.addFilmGenres(filmId, genres);
+        }
+
+        return filmStorage.getById(filmId).orElse(null);
     }
 
     @Override
     public Film update(Film film) {
         log.debug("Попытка обновить фильм {}.", film);
 
-        Integer id = film.getId();
-        checkExistsFilmById(id);
+        Integer filmId = film.getId();
+        checkExistsFilmById(filmId);
 
-        Film filmUpdated = filmStorage.update(id, film);
-        log.debug("Фильм {} обновлен.", film);
+        log.debug("Обновляем фильм {}.", film);
+        filmStorage.update(filmId, film);
 
-        return filmUpdated;
+        filmGenreStorage.deleteFilmGenres(filmId);
+
+        List<Genre> genres = film.getGenres();
+        if (genres != null && genres.size() > 0) {
+            log.debug("Обновляем жанры фильма {}.", film);
+            filmGenreStorage.addFilmGenres(filmId, genres);
+        }
+
+        return filmStorage.getById(filmId).orElse(null);
     }
 
     @Override
@@ -67,7 +87,7 @@ public class FilmServiceImpl implements FilmService {
         checkExistsFilmById(id);
         checkExistsUserById(userId);
 
-        return filmStorage.addLike(id, userId);
+        return filmLikeStorage.addLike(id, userId);
     }
 
     @Override
@@ -75,7 +95,7 @@ public class FilmServiceImpl implements FilmService {
         checkExistsFilmById(id);
         checkExistsUserById(userId);
 
-        return filmStorage.deleteLike(id, userId);
+        return filmLikeStorage.deleteLike(id, userId);
     }
 
     @Override

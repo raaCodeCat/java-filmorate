@@ -62,4 +62,36 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
 
         return likedUsersId;
     }
+
+    @Override
+    public Integer addLike(Integer id, Integer userId) {
+        Object[] params = new Object[]{
+                id,
+                userId
+        };
+        String sql = "insert into " +
+                "filmlike (film_id, user_id) " +
+                "values (?, ?)";
+
+        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
+
+        jdbcTemplate.update(sql, params);
+
+        return getLikesCountByFilmId(id);
+    }
+
+    @Override
+    public Integer deleteLike(Integer id, Integer userId) {
+        Object[] params = new Object[]{
+                id,
+                userId
+        };
+        String sql = "delete from filmlike where film_id = ? and user_id = ?";
+
+        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
+
+        jdbcTemplate.update(sql, params);
+
+        return getLikesCountByFilmId(id);
+    }
 }

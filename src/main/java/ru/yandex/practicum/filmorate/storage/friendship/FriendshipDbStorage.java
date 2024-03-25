@@ -58,35 +58,8 @@ public class FriendshipDbStorage implements FriendshipStorage {
     }
 
     @Override
-    public Friendship create(Friendship friendship) {
-        Object[] params = new Object[]{
-                friendship.getUser().getId(),
-                friendship.getUserFriend().getId(),
-                friendship.getIsConfirmed()
-        };
-        String sql = "insert into friendship(user_id, user_fid, friendship_isconfirmed) values (?, ?, ?)";
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[] {"friendship_id"});
-            ps.setInt(1, friendship.getUser().getId());
-            ps.setInt(2, friendship.getUserFriend().getId());
-            ps.setBoolean(3, friendship.getIsConfirmed());
-
-            return ps;
-        }, keyHolder);
-
-        Integer friendshipId = (Integer) (keyHolder.getKey());
-
-        return getById(friendshipId).orElse(null);
-    }
-
-    @Override
     @Transactional
-    public void createFriendship(Integer userId, Integer friendId) {
+    public Integer createFriendship(Integer userId, Integer friendId) {
         boolean isConfirmed = false;
         Optional<Friendship> friendshipRequestOptional = getByUserIdAndFriendId(friendId, userId);
 
@@ -107,25 +80,7 @@ public class FriendshipDbStorage implements FriendshipStorage {
         friendship.setUserFriend(friend);
         friendship.setIsConfirmed(isConfirmed);
 
-        create(friendship);
-    }
-
-    @Override
-    public Friendship update(Integer id, Friendship friendship) {
-        Object[] params = new Object[]{
-                friendship.getIsConfirmed(),
-                id
-        };
-        String sql = "update friendship " +
-                "set " +
-                "friendship_isconfirmed = ? " +
-                "where friendship_id = ?";
-
-        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
-
-        jdbcTemplate.update(sql, params);
-
-        return getById(id).orElse(null);
+        return create(friendship);
     }
 
     @Override
@@ -157,6 +112,45 @@ public class FriendshipDbStorage implements FriendshipStorage {
         log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
 
         return jdbcTemplate.query(sql, new UserMapper(), params);
+    }
+
+    private Integer create(Friendship friendship) {
+        Object[] params = new Object[]{
+                friendship.getUser().getId(),
+                friendship.getUserFriend().getId(),
+                friendship.getIsConfirmed()
+        };
+        String sql = "insert into friendship(user_id, user_fid, friendship_isconfirmed) values (?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[] {"friendship_id"});
+            ps.setInt(1, friendship.getUser().getId());
+            ps.setInt(2, friendship.getUserFriend().getId());
+            ps.setBoolean(3, friendship.getIsConfirmed());
+
+            return ps;
+        }, keyHolder);
+
+        return (Integer) (keyHolder.getKey());
+    }
+
+    private void update(Integer id, Friendship friendship) {
+        Object[] params = new Object[]{
+                friendship.getIsConfirmed(),
+                id
+        };
+        String sql = "update friendship " +
+                "set " +
+                "friendship_isconfirmed = ? " +
+                "where friendship_id = ?";
+
+        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
+
+        jdbcTemplate.update(sql, params);
     }
 
     private Optional<Friendship> getByUserIdAndFriendId(Integer userId, Integer friendId) {

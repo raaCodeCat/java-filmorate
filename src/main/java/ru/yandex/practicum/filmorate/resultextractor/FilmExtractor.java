@@ -8,10 +8,12 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FilmExtractor implements ResultSetExtractor<List<Film>> {
     @Override
@@ -62,6 +64,19 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
                 genre.setName(rs.getString("genre_name"));
 
                 genres.add(genre);
+            }
+
+            String likesStr = rs.getString("likes_str");
+
+            if (likesStr != null && !likesStr.isBlank()) {
+                if (film.getLikedUsers() == null) {
+                    String[] likes = likesStr.split(",");
+                    Set<Integer> userIds = new HashSet<>();
+                    for (String like : likes) {
+                        userIds.add(Integer.parseInt(like));
+                    }
+                    film.setLikedUsers(userIds);
+                }
             }
         }
 

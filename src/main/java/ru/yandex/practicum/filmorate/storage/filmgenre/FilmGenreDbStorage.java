@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,19 +20,17 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
 
     @Override
     public void addFilmGenres(Integer filmId, List<Genre> genres) {
-        Object[] params;
+        List<Object[]> params = new ArrayList<>();
         String sql = "insert into filmgenre (film_id, genre_id)" +
                 " values (?, ?)";
 
         for (Genre genre : genres) {
-            params = new Object[]{
-                    filmId, genre.getId()
-            };
-
-            log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
-
-            jdbcTemplate.update(sql, params);
+            params.add(new Object[]{filmId, genre.getId()});
         }
+
+        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params.toArray());
+
+        jdbcTemplate.batchUpdate(sql, params);
     }
 
     @Override

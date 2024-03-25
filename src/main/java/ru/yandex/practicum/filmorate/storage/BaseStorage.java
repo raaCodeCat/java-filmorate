@@ -11,7 +11,7 @@ public interface BaseStorage<T> {
 
     Optional<T> getById(Integer id);
 
-    T create(T t);
+    Integer create(T t);
 
-    T update(Integer id, T t);
+    void update(Integer id, T t);
 }

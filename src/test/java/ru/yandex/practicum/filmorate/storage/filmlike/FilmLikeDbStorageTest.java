@@ -12,8 +12,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.filmgenre.FilmGenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import java.time.LocalDate;
 import java.util.List;
@@ -32,16 +30,9 @@ class FilmLikeDbStorageTest {
 
     @BeforeEach
     void setUp() {
-        filmDbStorage = new FilmDbStorage(
-                jdbcTemplate,
-                new FilmLikeDbStorage(jdbcTemplate),
-                new FilmGenreDbStorage(jdbcTemplate)
-        );
+        filmDbStorage = new FilmDbStorage(jdbcTemplate);
 
-        userDbStorage = new UserDbStorage(
-                jdbcTemplate,
-                new FriendshipDbStorage(jdbcTemplate)
-        );
+        userDbStorage = new UserDbStorage(jdbcTemplate);
 
         filmLikeDbStorage = new FilmLikeDbStorage(jdbcTemplate);
 
@@ -65,12 +56,10 @@ class FilmLikeDbStorageTest {
 
     @Test
     void get() {
-        Film film = filmDbStorage.create(newFilm);
-        Integer filmId = film.getId();
-        User user = userDbStorage.create(newUser);
-        Integer userId = user.getId();
+        Integer filmId = filmDbStorage.create(newFilm);
+        Integer userId = userDbStorage.create(newUser);
 
-        filmDbStorage.addLike(filmId, userId);
+        filmLikeDbStorage.addLike(filmId, userId);
         List<FilmLike> filmLikes = filmLikeDbStorage.get();
 
         assertEquals(1, filmLikes.size());
@@ -80,12 +69,10 @@ class FilmLikeDbStorageTest {
 
     @Test
     void getLikedUsersByFilmId() {
-        Film film = filmDbStorage.create(newFilm);
-        Integer filmId = film.getId();
-        User user = userDbStorage.create(newUser);
-        Integer userId = user.getId();
+        Integer filmId = filmDbStorage.create(newFilm);
+        Integer userId = userDbStorage.create(newUser);
 
-        filmDbStorage.addLike(filmId, userId);
+        filmLikeDbStorage.addLike(filmId, userId);
         List<User> users = filmLikeDbStorage.getLikedUsersByFilmId(filmId);
 
         assertEquals(1, users.size());
@@ -98,13 +85,11 @@ class FilmLikeDbStorageTest {
 
     @Test
     void getLikesCountByFilmId() {
-        Film film = filmDbStorage.create(newFilm);
-        Integer filmId = film.getId();
-        User user = userDbStorage.create(newUser);
-        Integer userId = user.getId();
+        Integer filmId = filmDbStorage.create(newFilm);
+        Integer userId = userDbStorage.create(newUser);
 
         Integer likesCountBeforeLike = filmLikeDbStorage.getLikesCountByFilmId(filmId);
-        filmDbStorage.addLike(filmId, userId);
+        filmLikeDbStorage.addLike(filmId, userId);
         Integer likesCountAfterLike = filmLikeDbStorage.getLikesCountByFilmId(filmId);
 
         assertEquals(0, likesCountBeforeLike);
@@ -113,15 +98,41 @@ class FilmLikeDbStorageTest {
 
     @Test
     void getLikedUsersIdByFilmId() {
-        Film film = filmDbStorage.create(newFilm);
-        Integer filmId = film.getId();
-        User user = userDbStorage.create(newUser);
-        Integer userId = user.getId();
+        Integer filmId = filmDbStorage.create(newFilm);
+        Integer userId = userDbStorage.create(newUser);
 
-        filmDbStorage.addLike(filmId, userId);
+        filmLikeDbStorage.addLike(filmId, userId);
         Set<Integer> usersId = filmLikeDbStorage.getLikedUsersIdByFilmId(filmId);
 
         assertEquals(1, usersId.size());
         assertEquals(Set.of(userId), usersId);
+    }
+
+    @Test
+    void addLike() {
+        Integer filmId = filmDbStorage.create(newFilm);
+        Integer userId = userDbStorage.create(newUser);
+
+        filmLikeDbStorage.addLike(filmId, userId);
+        Set<Integer> usersId = filmLikeDbStorage.getLikedUsersIdByFilmId(filmId);
+
+        assertEquals(1, usersId.size());
+        assertEquals(Set.of(userId), usersId);
+    }
+
+    @Test
+    void deleteLike() {
+        Integer filmId = filmDbStorage.create(newFilm);
+        Integer userId = userDbStorage.create(newUser);
+
+        Integer likesCountBeforeLike = filmLikeDbStorage.getLikesCountByFilmId(filmId);
+        filmLikeDbStorage.addLike(filmId, userId);
+        Integer likesCountAfterLike = filmLikeDbStorage.getLikesCountByFilmId(filmId);
+        filmLikeDbStorage.deleteLike(filmId, userId);
+        Integer likesCountAfterDelete = filmLikeDbStorage.getLikesCountByFilmId(filmId);
+
+        assertEquals(0, likesCountBeforeLike);
+        assertEquals(1, likesCountAfterLike);
+        assertEquals(0, likesCountAfterDelete);
     }
 }

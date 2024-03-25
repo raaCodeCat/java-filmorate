@@ -2,14 +2,14 @@ package ru.yandex.practicum.filmorate.storage.friendship;
 
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.BaseGetStorage;
 
 import java.util.List;
 
-public interface FriendshipStorage extends BaseStorage<Friendship> {
+public interface FriendshipStorage extends BaseGetStorage<Friendship> {
     List<User> getFriendsByUserId(Integer id);
 
-    void createFriendship(Integer userId, Integer friendId);
+    Integer createFriendship(Integer userId, Integer friendId);
 
     void deleteFriendship(Integer userId, Integer friendId);
 

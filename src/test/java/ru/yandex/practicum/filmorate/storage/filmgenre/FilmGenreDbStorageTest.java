@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.filmlike.FilmLikeDbStorage;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -27,11 +26,7 @@ class FilmGenreDbStorageTest {
     @BeforeEach
     void setUp() {
         filmGenreDbStorage = new FilmGenreDbStorage(jdbcTemplate);
-        filmDbStorage = new FilmDbStorage(
-                jdbcTemplate,
-                new FilmLikeDbStorage(jdbcTemplate),
-                new FilmGenreDbStorage(jdbcTemplate)
-        );
+        filmDbStorage = new FilmDbStorage(jdbcTemplate);
 
         MpaRating mpa =  MpaRating.builder().id(1).build();
 
@@ -48,8 +43,7 @@ class FilmGenreDbStorageTest {
     void addFilmGenres() {
         Genre genre1 = Genre.builder().id(1).build();
         Genre genre2 = Genre.builder().id(3).build();
-        Film addedFilm = filmDbStorage.create(film);
-        Integer filmId = addedFilm.getId();
+        Integer filmId = filmDbStorage.create(film);
 
         Optional<Film> filmBeforeAddGenre = filmDbStorage.getById(filmId);
         filmGenreDbStorage.addFilmGenres(filmId, List.of(genre1, genre2));
@@ -70,8 +64,7 @@ class FilmGenreDbStorageTest {
     void deleteFilmGenres() {
         Genre genre1 = Genre.builder().id(1).build();
         Genre genre2 = Genre.builder().id(3).build();
-        Film addedFilm = filmDbStorage.create(film);
-        Integer filmId = addedFilm.getId();
+        Integer filmId = filmDbStorage.create(film);
         filmGenreDbStorage.addFilmGenres(filmId, List.of(genre1, genre2));
 
         Optional<Film> filmBeforeDelGenre = filmDbStorage.getById(filmId);

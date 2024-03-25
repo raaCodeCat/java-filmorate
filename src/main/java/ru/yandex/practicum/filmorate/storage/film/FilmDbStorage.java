@@ -6,12 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.resultextractor.FilmExtractor;
-import ru.yandex.practicum.filmorate.storage.filmgenre.FilmGenreStorage;
-import ru.yandex.practicum.filmorate.storage.filmlike.FilmLikeStorage;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -27,10 +23,6 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    private final FilmLikeStorage filmLikeStorage;
-
-    private final FilmGenreStorage filmGenreStorage;
-
     private final String filmGetSql = "select " +
             "f.film_id, " +
             "f.film_name, " +
@@ -41,7 +33,13 @@ public class FilmDbStorage implements FilmStorage {
             "r.rating_name, " +
             "r.rating_description, " +
             "g.genre_id, " +
-            "g.genre_name " +
+            "g.genre_name, " +
+            "(select" +
+            "   group_concat(user_id separator ',') " +
+            "   from filmlike t " +
+            "   where t.film_id = f.film_id " +
+            "   group by film_id " +
+            ") as likes_str " +
             "from films as f " +
             "left join rating as r on f.rating_id = r.rating_id " +
             "left join filmgenre as fg on f.film_id = fg.film_id " +
@@ -54,11 +52,7 @@ public class FilmDbStorage implements FilmStorage {
 
         log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
 
-        List<Film> films = jdbcTemplate.query(sql, new FilmExtractor());
-
-        addLikesInfoToFilmList(films);
-
-        return films;
+        return jdbcTemplate.query(sql, new FilmExtractor());
     }
 
     @Override
@@ -69,7 +63,6 @@ public class FilmDbStorage implements FilmStorage {
         log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
 
         List<Film> films = jdbcTemplate.query(sql, new FilmExtractor(), params);
-        addLikesInfoToFilmList(films);
 
         if (films == null || films.size() == 0) {
             return Optional.empty();
@@ -79,8 +72,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    @Transactional
-    public Film create(Film film) {
+    public Integer create(Film film) {
         Object[] params = new Object[]{
                 film.getName(),
                 film.getDescription(),
@@ -105,20 +97,11 @@ public class FilmDbStorage implements FilmStorage {
             return ps;
         }, keyHolder);
 
-        Integer filmId = (Integer) (keyHolder.getKey());
-
-        List<Genre> genres = film.getGenres();
-
-        if (genres != null && genres.size() > 0) {
-            filmGenreStorage.addFilmGenres(filmId, genres);
-        }
-
-        return getById(filmId).orElse(null);
+        return (Integer) (keyHolder.getKey());
     }
 
     @Override
-    @Transactional
-    public Film update(Integer id, Film film) {
+    public void update(Integer id, Film film) {
         Object[] params = new Object[]{
                 film.getName(),
                 film.getDescription(),
@@ -138,53 +121,9 @@ public class FilmDbStorage implements FilmStorage {
 
         log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
 
-        jdbcTemplate.update(
-                sql,
-                params
-        );
-
-        List<Genre> genres = film.getGenres();
-
-        filmGenreStorage.deleteFilmGenres(id);
-
-        if (genres != null && genres.size() > 0) {
-            filmGenreStorage.addFilmGenres(id, genres);
-        }
-
-        return getById(id).orElse(null);
-    }
-
-    @Override
-    public Integer addLike(Integer id, Integer userId) {
-        Object[] params = new Object[]{
-                id,
-                userId
-        };
-        String sql = "insert into " +
-                "filmlike (film_id, user_id) " +
-                "values (?, ?)";
-
-        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
-
         jdbcTemplate.update(sql, params);
-
-        return filmLikeStorage.getLikesCountByFilmId(id);
     }
 
-    @Override
-    public Integer deleteLike(Integer id, Integer userId) {
-        Object[] params = new Object[]{
-                id,
-                userId
-        };
-        String sql = "delete from filmlike where film_id = ? and user_id = ?";
-
-        log.debug("Выполняется запрос к БД: {} Параметры: {}", sql, params);
-
-        jdbcTemplate.update(sql, params);
-
-        return filmLikeStorage.getLikesCountByFilmId(id);
-    }
 
     @Override
     public List<Film> getPopularFilms(Integer count) {
@@ -210,15 +149,5 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         return popularFilmsResult;
-    }
-
-    private void addLikesInfoToFilmList(List<Film> films) {
-        if (films == null) {
-            return;
-        }
-
-        for (Film film : films) {
-            film.setLikedUsers(filmLikeStorage.getLikedUsersIdByFilmId(film.getId()));
-        }
     }
 }
