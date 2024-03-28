@@ -23,7 +23,7 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    private final String filmGetSql = "select " +
+    private final String filmGetSql = "select distinct " +
             "f.film_id, " +
             "f.film_name, " +
             "f.film_description, " +

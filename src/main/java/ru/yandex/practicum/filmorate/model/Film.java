@@ -11,7 +11,6 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Min;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -60,7 +59,7 @@ public class Film {
     /**
      * Список жанров.
      */
-    private List<Genre> genres;
+    private Set<Genre> genres;
 
     /**
      * Пользователи поставившие лайк.

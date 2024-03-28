@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * DAO для {@link FilmGenre}.
@@ -19,7 +20,7 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addFilmGenres(Integer filmId, List<Genre> genres) {
+    public void addFilmGenres(Integer filmId, Set<Genre> genres) {
         List<Object[]> params = new ArrayList<>();
         String sql = "insert into filmgenre (film_id, genre_id)" +
                 " values (?, ?)";

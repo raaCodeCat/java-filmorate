@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,10 +52,10 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
             Integer genreId = rs.getObject("genre_id", Integer.class);
 
             if (genreId != null) {
-                List<Genre> genres = film.getGenres();
+                Set<Genre> genres = film.getGenres();
 
                 if (genres == null) {
-                    genres = new LinkedList<>();
+                    genres = new LinkedHashSet<>();
                     film.setGenres(genres);
                 }
 

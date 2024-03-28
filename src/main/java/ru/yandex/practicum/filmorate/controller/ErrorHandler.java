@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,16 @@ public class ErrorHandler {
             log.debug("Ошибка 400: {}: {}", fieldName, errorMessage);
             errors.put(fieldName, errorMessage);
         });
+
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public Map<String, String> handleInnerBadRequestExceptions(BadRequestException exception) {
+        log.debug("Ошибка 400: {}", exception.getReason());
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", exception.getReason());
 
         return errors;
     }
