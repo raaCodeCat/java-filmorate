@@ -163,7 +163,7 @@ public class FilmServiceImpl implements FilmService {
             genresInDbIds.add(g.getId());
         }
 
-        for(Genre genre : genres) {
+        for (Genre genre : genres) {
             if (!genresInDbIds.contains(genre.getId())) {
                 throw new BadRequestException(
                         HttpStatus.BAD_REQUEST, "Жанр с id = " + genre.getId() + " отсутствует"
