@@ -44,7 +44,7 @@ class FilmLikeDbStorageTest {
                 .releaseDate(LocalDate.of(2020, 1, 2))
                 .duration(100)
                 .mpa(mpa)
-                .genres(List.of(genre))
+                .genres(Set.of(genre))
                 .build();
         newUser = User.builder()
                 .login("dolore")

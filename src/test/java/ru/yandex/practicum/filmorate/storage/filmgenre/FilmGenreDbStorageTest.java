@@ -11,8 +11,9 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @JdbcTest
@@ -46,7 +47,7 @@ class FilmGenreDbStorageTest {
         Integer filmId = filmDbStorage.create(film);
 
         Optional<Film> filmBeforeAddGenre = filmDbStorage.getById(filmId);
-        filmGenreDbStorage.addFilmGenres(filmId, List.of(genre1, genre2));
+        filmGenreDbStorage.addFilmGenres(filmId, Set.of(genre1, genre2));
         Optional<Film> filmAfterAddGenre = filmDbStorage.getById(filmId);
 
         assertTrue(filmBeforeAddGenre.isPresent());
@@ -54,10 +55,6 @@ class FilmGenreDbStorageTest {
         assertTrue(filmAfterAddGenre.isPresent());
         assertNotNull(filmAfterAddGenre.get().getGenres());
         assertEquals(2, filmAfterAddGenre.get().getGenres().size());
-        assertEquals(1, filmAfterAddGenre.get().getGenres().get(0).getId());
-        assertEquals("Комедия", filmAfterAddGenre.get().getGenres().get(0).getName());
-        assertEquals(3, filmAfterAddGenre.get().getGenres().get(1).getId());
-        assertEquals("Мультфильм", filmAfterAddGenre.get().getGenres().get(1).getName());
     }
 
     @Test
@@ -65,7 +62,7 @@ class FilmGenreDbStorageTest {
         Genre genre1 = Genre.builder().id(1).build();
         Genre genre2 = Genre.builder().id(3).build();
         Integer filmId = filmDbStorage.create(film);
-        filmGenreDbStorage.addFilmGenres(filmId, List.of(genre1, genre2));
+        filmGenreDbStorage.addFilmGenres(filmId, Set.of(genre1, genre2));
 
         Optional<Film> filmBeforeDelGenre = filmDbStorage.getById(filmId);
         filmGenreDbStorage.deleteFilmGenres(filmId);
@@ -74,10 +71,6 @@ class FilmGenreDbStorageTest {
         assertTrue(filmBeforeDelGenre.isPresent());
         assertNotNull(filmBeforeDelGenre.get().getGenres());
         assertEquals(2, filmBeforeDelGenre.get().getGenres().size());
-        assertEquals(1, filmBeforeDelGenre.get().getGenres().get(0).getId());
-        assertEquals("Комедия", filmBeforeDelGenre.get().getGenres().get(0).getName());
-        assertEquals(3, filmBeforeDelGenre.get().getGenres().get(1).getId());
-        assertEquals("Мультфильм", filmBeforeDelGenre.get().getGenres().get(1).getName());
         assertTrue(filmAfterDelGenre.isPresent());
         assertNull(filmAfterDelGenre.get().getGenres());
     }

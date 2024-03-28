@@ -15,6 +15,8 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -46,7 +48,7 @@ class FilmDbStorageTest {
                 .releaseDate(LocalDate.of(2020, 1, 2))
                 .duration(100)
                 .mpa(mpa)
-                .genres(List.of(genre))
+                .genres(Set.of(genre))
                 .build();
 
         MpaRating mpa2 = MpaRating.builder().id(2).build();
@@ -58,7 +60,7 @@ class FilmDbStorageTest {
                 .releaseDate(LocalDate.of(2021, 1, 2))
                 .duration(60)
                 .mpa(mpa2)
-                .genres(List.of(genre1, genre2))
+                .genres(Set.of(genre1, genre2))
                 .build();
 
         newUser = User.builder()
