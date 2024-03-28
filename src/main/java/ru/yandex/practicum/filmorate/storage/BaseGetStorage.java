@@ -4,14 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Интерфейс базового хранилища.
+ * Интерфейс хранилища.
+ * Содержит методы получения данных.
  */
-public interface BaseStorage<T> {
+public interface BaseGetStorage<T> {
     List<T> get();
 
     Optional<T> getById(Integer id);
-
-    Integer create(T t);
-
-    void update(Integer id, T t);
 }

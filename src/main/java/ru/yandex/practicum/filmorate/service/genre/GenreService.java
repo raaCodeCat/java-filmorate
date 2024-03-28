@@ -1,0 +1,10 @@
+package ru.yandex.practicum.filmorate.service.genre;
+
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.service.BaseGetService;
+
+/**
+ * Интерфейс сервиса для {@link Genre}.
+ */
+public interface GenreService extends BaseGetService<Genre> {
+}

@@ -1,7 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -12,8 +17,13 @@ import java.util.Set;
 /**
  * User
  */
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class User {
     /**
      * Целочисленный идентификатор пользователя.
